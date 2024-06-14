@@ -38,25 +38,38 @@ async def process_content_topic_message(mongo_client: AsyncIOMotorClient, messag
         backdropurl,
     ) = message.split("@#$")
 
+    if certification == "None" or not certification:
+        certification = None
+    if genre == "None" or not genre:
+        genre = None
+    if origin_country == "None" or not origin_country:
+        origin_country = None
+    if director == "None" or not director:
+        director = None
+    if actor == "None" or not actor:
+        actor = None
+    if platform == "None" or not platform:
+        platform = None
+
     release_date = pytz.timezone("Asia/Seoul").localize(string_to_datetime(release_date))
     mongo_document = {
-        "id": int(id),
+        "_id": int(id),
         "title": title,
         "runtime": int(runtime),
         "release_date": release_date,
-        "certification": certification.split(", ")[0] if type(certification) == str else "",
-        "genre": genre.split(", ") if type(genre) == str else "",
-        "origin_country": origin_country.split(", ") if type(origin_country) == str else "",
+        "certification": certification.split(", ")[0] if type(certification) == str else None,
+        "genre": [g for g in genre.split(", ") if g] if type(genre) == str else None,
+        "origin_country": origin_country.split(", ") if type(origin_country) == str else None,
         "overview": overview,
-        "director": director.split(", ") if type(director) == str else "",
-        "actor": actor.split(", ") if type(actor) == str else "",
-        "platform": platform.split(", "),
+        "director": director.split(", ") if type(director) == str else None,
+        "actor": actor.split(", ") if type(actor) == str else None,
+        "platform": platform.split(", ") if type(platform) == str else None,
         "rating_value": float(rating_value),
         "rating_count": int(rating_count),
         "posterurl_count": int(posterurl_count),
         "backdropurl_count": int(backdropurl_count),
-        "posterurl": posterurl.split(", ") if type(posterurl) == str else "",
-        "backdropurl": backdropurl.split(", ") if type(backdropurl) == str else "",
+        "posterurl": posterurl.split(", ") if type(posterurl) == str else None,
+        "backdropurl": backdropurl.split(", ") if type(backdropurl) == str else None,
     }
 
     await mongo_client.content["media"].insert_one(mongo_document)
