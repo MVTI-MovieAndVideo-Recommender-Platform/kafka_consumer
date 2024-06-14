@@ -53,7 +53,7 @@ async def process_content_topic_message(mongo_client: AsyncIOMotorClient, messag
 
     release_date = pytz.timezone("Asia/Seoul").localize(string_to_datetime(release_date))
     mongo_document = {
-        "_id": int(id),
+        "id": int(id),
         "title": title,
         "runtime": int(runtime),
         "release_date": release_date,
