@@ -9,19 +9,10 @@ from motor.motor_asyncio import AsyncIOMotorClient
 from _content_topic_process import process_content_topic_message
 from _memeber_topic_process import process_member_topic_message
 
-load_dotenv
-conf = {
-    "bootstrap.servers": os.environ.get("kafka_host"),
-    "group.id": "my_group",
-    "auto.offset.reset": "earliest",
-}
-
-consumer = Consumer(**conf)
-# MongoDB 클라이언트 설정
-mongo_client = AsyncIOMotorClient(os.environ.get("mongo_host"))
+load_dotenv()
 
 
-async def consume_messages(mongo_client, topics):
+async def consume_messages(consumer, mongo_client, topics):
     consumer.subscribe(topics)
 
     while True:
@@ -49,8 +40,18 @@ async def consume_messages(mongo_client, topics):
 
 
 async def main():
+    conf = {
+        "bootstrap.servers": os.environ.get("kafka_host"),
+        "group.id": "my_group",
+        "auto.offset.reset": "earliest",
+    }
+    consumer = Consumer(**conf)
+    # MongoDB 클라이언트 설정
+    mongo_client = AsyncIOMotorClient(os.environ.get("mongo_host"))
+    print(os.environ.get("kafka_host"))
+    print(os.environ.get("mongo_host"))
     topics = ["content-topic", "member-topic"]
-    await consume_messages(mongo_client, topics)
+    await consume_messages(consumer, mongo_client, topics)
 
 
 if __name__ == "__main__":
