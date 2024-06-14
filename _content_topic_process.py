@@ -5,13 +5,17 @@ from motor.motor_asyncio import AsyncIOMotorClient
 
 
 # 문자열을 datetime 객체로 변환하는 함수 (시, 분, 초를 0으로 설정)
-def string_to_datetime(date_string):
-    date_part = datetime.strptime(date_string, "%Y-%m-%d")
-    return datetime(date_part.year, date_part.month, date_part.day, 0, 0, 0)
+def string_to_datetime(date_str):
+    try:
+        # 시간 정보가 없는 경우
+        return datetime.strptime(date_str, "%Y-%m-%d").replace(hour=0, minute=0, second=0)
+    except ValueError:
+        # 날짜와 시간이 모두 있는 경우
+        return datetime.strptime(date_str, "%Y-%m-%dT%H:%M:%S")
 
 
 async def process_content_topic_message(mongo_client: AsyncIOMotorClient, message: str):
-    print(f"Received message: {message.value}")
+    print(f"Received message: {message}")
 
     # 메시지에서 데이터를 추출
     (
@@ -32,11 +36,9 @@ async def process_content_topic_message(mongo_client: AsyncIOMotorClient, messag
         backdropurl_count,
         posterurl,
         backdropurl,
-    ) = message.value.split("@#$")
+    ) = message.split("@#$")
 
-    release_date = pytz.timezone("Asia/Seoul").localize(
-        datetime.strptime(string_to_datetime(release_date), "%Y-%m-%dT%H:%M:%S")
-    )
+    release_date = pytz.timezone("Asia/Seoul").localize(string_to_datetime(release_date))
     mongo_document = {
         "id": int(id),
         "title": title,
