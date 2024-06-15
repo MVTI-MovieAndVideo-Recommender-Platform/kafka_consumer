@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 from motor.motor_asyncio import AsyncIOMotorClient
 
 from _content_topic_process import process_content_topic_message
-from _memeber_topic_process import process_member_topic_message
+from _member_topic_process import process_member_topic_message
 
 load_dotenv()
 
