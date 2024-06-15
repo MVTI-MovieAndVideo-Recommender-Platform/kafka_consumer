@@ -1,4 +1,5 @@
 import asyncio
+import json
 from datetime import datetime
 
 import pytz
@@ -38,7 +39,8 @@ async def update_is_delete(mongo_client, db_name, collection_name, column, updat
     print(f"Updated {result.modified_count} documents in {db_name}.{collection_name}.")
 
 
-async def process_member_topic_message(mongo_client: AsyncIOMotorClient, message: dict):
+async def process_member_topic_message(mongo_client: AsyncIOMotorClient, message: str):
+    message = json.loads(message)
     action = None
     data = None
 
@@ -79,11 +81,11 @@ async def process_member_topic_message(mongo_client: AsyncIOMotorClient, message
         elif action == "delete":
             # Assuming 'id' is the primary key for the deletion
             user_document = {"_id": data["user_id"]}
-            review_document = {"user_id": data["user_id"]}
+            # review_document = {"user_id": data["user_id"]}
             update = {"$set": {"is_delete": data["is_delete"]}}
             await asyncio.gather(
                 update_is_delete(mongo_client, "member", table, user_document, update),
-                update_is_delete(mongo_client, "review", "preference", review_document, update),
-                update_is_delete(mongo_client, "review", "rating", review_document, update),
+                # update_is_delete(mongo_client, "review", "preference", review_document, update),
+                # update_is_delete(mongo_client, "review", "rating", review_document, update),
             )
             print(f"Deleted from MongoDB")

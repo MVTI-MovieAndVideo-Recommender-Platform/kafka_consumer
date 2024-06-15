@@ -27,16 +27,14 @@ async def consume_messages(consumer, mongo_client, topics):
                 raise KafkaException(msg.error())
 
         message_value = msg.value().decode("utf-8-sig")
-        message = json.loads(message_value) if type(message_value) == dict else message_value
         # message_dict = json.loads(message_value)
-        # print(message_dict)
 
         topic = msg.topic()
 
         if topic == "member-topic":
-            await process_member_topic_message(mongo_client, message)
+            await process_member_topic_message(mongo_client, message_value)
         elif topic == "content-topic":
-            await process_content_topic_message(mongo_client, message)
+            await process_content_topic_message(mongo_client, message_value)
 
 
 async def main():
@@ -50,7 +48,7 @@ async def main():
     mongo_client = AsyncIOMotorClient(os.environ.get("mongo_host"))
     print(os.environ.get("kafka_host"))
     print(os.environ.get("mongo_host"))
-    topics = ["content-topic", "member-topic"]
+    topics = ["content-topic", "member-topic", "review-topic", "recommend-topic"]
     await consume_messages(consumer, mongo_client, topics)
 
 
