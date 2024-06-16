@@ -8,6 +8,7 @@ from motor.motor_asyncio import AsyncIOMotorClient
 
 from _content_topic_process import process_content_topic_message
 from _member_topic_process import process_member_topic_message
+from _review_topic_process import process_review_topic_message
 
 load_dotenv()
 
@@ -35,6 +36,8 @@ async def consume_messages(consumer, mongo_client, topics):
             await process_member_topic_message(mongo_client, message_value)
         elif topic == "content-topic":
             await process_content_topic_message(mongo_client, message_value)
+        elif topic == "review-topic":
+            await process_review_topic_message(mongo_client, message_value)
 
 
 async def main():
