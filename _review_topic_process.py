@@ -70,6 +70,7 @@ async def review_is_delete_state(
 
 async def process_review_topic_message(mongo_client: AsyncIOMotorClient, message: str):
     message = json.loads(message)
+    print(f"type : {type(message)} and {message}")
     action = None
     data = None
 
