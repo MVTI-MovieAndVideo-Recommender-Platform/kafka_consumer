@@ -19,8 +19,9 @@ async def rating_data_preprocessing(data: dict) -> dict:
 
 
 async def preference_data_preprocessing(data: dict) -> dict:
+    print(f"preference_data_preprocessing -> {data}")
     return {
-        "_id": int(data.get("preference_id")),
+        "_id": data.get("preference_id"),
         "user_id": str(data.get("user_id")),
         "media_id": int(data.get("media_id")),
         "last_update": pytz.timezone("Asia/Seoul").localize(
@@ -87,6 +88,7 @@ async def process_review_topic_message(mongo_client: AsyncIOMotorClient, message
     if data:
         table = "rating" if "rating" in data else "preference"
         data = data.get(table)
+        print(data)
         if action == "insert":
             document = (
                 await rating_data_preprocessing(data)
