@@ -58,10 +58,12 @@ async def review_is_delete_state(
         await mongo_client.review[collection].update_one(
             {"_id": _id},
             {
-                "$set": {"is_delete": is_delete},
-                "last_update": pytz.timezone("Asia/Seoul").localize(
-                    datetime.strptime(last_update, "%Y-%m-%dT%H:%M:%S")
-                ),
+                "$set": {
+                    "is_delete": is_delete,
+                    "last_update": pytz.timezone("Asia/Seoul").localize(
+                        datetime.strptime(last_update, "%Y-%m-%dT%H:%M:%S")
+                    ),
+                }
             },
         )
         print(f"수정 완료")
