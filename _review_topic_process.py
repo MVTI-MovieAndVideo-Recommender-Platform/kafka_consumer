@@ -6,6 +6,12 @@ from motor.motor_asyncio import AsyncIOMotorClient
 
 
 async def rating_data_preprocessing(data: dict) -> dict:
+    print(f"rating_data_preprocessing -> {data}")
+    print(
+        pytz.timezone("Asia/Seoul").localize(
+            datetime.strptime(data.get("last_update"), "%Y-%m-%dT%H:%M:%S")
+        )
+    )
     return {
         "_id": int(data.get("rating_id")),
         "user_id": str(data.get("user_id")),
@@ -20,6 +26,11 @@ async def rating_data_preprocessing(data: dict) -> dict:
 
 async def preference_data_preprocessing(data: dict) -> dict:
     print(f"preference_data_preprocessing -> {data}")
+    print(
+        pytz.timezone("Asia/Seoul").localize(
+            datetime.strptime(data.get("last_update"), "%Y-%m-%dT%H:%M:%S")
+        )
+    )
     return {
         "_id": data.get("preference_id"),
         "user_id": str(data.get("user_id")),
@@ -34,6 +45,11 @@ async def preference_data_preprocessing(data: dict) -> dict:
 # 별점 업데이트
 async def rating_update(mongo_client, rating_id: int, rating: float, last_update):
     try:
+        print(
+            pytz.timezone("Asia/Seoul").localize(
+                datetime.strptime(last_update, "%Y-%m-%dT%H:%M:%S")
+            )
+        )
         await mongo_client.review.rating.update_one(
             {"_id": rating_id},
             {
@@ -54,6 +70,7 @@ async def rating_update(mongo_client, rating_id: int, rating: float, last_update
 async def review_is_delete_state(
     mongo_client, collection: str, _id: int, last_update: str, is_delete: bool
 ):
+    print(pytz.timezone("Asia/Seoul").localize(datetime.strptime(last_update, "%Y-%m-%dT%H:%M:%S")))
     try:
         await mongo_client.review[collection].update_one(
             {"_id": _id},
@@ -100,7 +117,7 @@ async def process_review_topic_message(mongo_client: AsyncIOMotorClient, message
             await mongo_client["review"][table].insert_one(document)
             print(f"Inserted to MongoDB: {document}")
         elif action == "update":
-            rating_update(
+            await rating_update(
                 mongo_client, data.get("rating_id"), data.get("rating"), data.get("last_update")
             )
             print(f"Updated in MongoDB")
@@ -112,6 +129,7 @@ async def process_review_topic_message(mongo_client: AsyncIOMotorClient, message
                     data.get("rating_id"),
                     data.get("last_update"),
                     data.get("is_delete"),
+                    data.get("rating"),
                 )
             else:
                 await review_is_delete_state(
