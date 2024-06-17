@@ -71,18 +71,27 @@ async def review_is_delete_state(
     mongo_client, collection: str, _id: int, last_update: str, is_delete: bool
 ):
     print(pytz.timezone("Asia/Seoul").localize(datetime.strptime(last_update, "%Y-%m-%dT%H:%M:%S")))
+    if collection == "rating":
+        document = {
+            "$set": {
+                "is_delete": is_delete,
+                "rating": 0,
+                "last_update": pytz.timezone("Asia/Seoul").localize(
+                    datetime.strptime(last_update, "%Y-%m-%dT%H:%M:%S")
+                ),
+            }
+        }
+    else:
+        document = {
+            "$set": {
+                "is_delete": is_delete,
+                "last_update": pytz.timezone("Asia/Seoul").localize(
+                    datetime.strptime(last_update, "%Y-%m-%dT%H:%M:%S")
+                ),
+            }
+        }
     try:
-        await mongo_client.review[collection].update_one(
-            {"_id": _id},
-            {
-                "$set": {
-                    "is_delete": is_delete,
-                    "last_update": pytz.timezone("Asia/Seoul").localize(
-                        datetime.strptime(last_update, "%Y-%m-%dT%H:%M:%S")
-                    ),
-                }
-            },
-        )
+        await mongo_client.review[collection].update_one({"_id": _id}, document)
         print(f"수정 완료")
     except:
         print("수정 실패")
@@ -129,7 +138,6 @@ async def process_review_topic_message(mongo_client: AsyncIOMotorClient, message
                     data.get("rating_id"),
                     data.get("last_update"),
                     data.get("is_delete"),
-                    data.get("rating"),
                 )
             else:
                 await review_is_delete_state(
