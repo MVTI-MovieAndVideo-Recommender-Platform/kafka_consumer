@@ -8,6 +8,7 @@ from motor.motor_asyncio import AsyncIOMotorClient
 
 from _content_topic_process import process_content_topic_message
 from _member_topic_process import process_member_topic_message
+from _recommend_topic_process import process_recommend_topic_message
 from _review_topic_process import process_review_topic_message
 
 load_dotenv()
@@ -19,7 +20,7 @@ async def consume_messages(consumer, mongo_client, topics):
     while True:
         msg = consumer.poll(0)
         if msg is None:
-            await asyncio.sleep(0.2)  # 메시지가 없을 경우 1초 대기
+            await asyncio.sleep(0.2)  # 메시지가 없을 경우 0.2초 대기
             continue
         if msg.error():
             if msg.error().code() == KafkaError._PARTITION_EOF:
@@ -38,6 +39,8 @@ async def consume_messages(consumer, mongo_client, topics):
             await process_content_topic_message(mongo_client, message_value)
         elif topic == "review-topic":
             await process_review_topic_message(mongo_client, message_value)
+        elif topic == "recommend-topic":
+            await process_recommend_topic_message(mongo_client, message_value)
 
 
 async def main():
